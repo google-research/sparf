@@ -13,7 +13,7 @@ and [Federico Tombari](https://federicotombari.github.io/)
 
 \[[arXiv preprint](https://arxiv.org/abs/2211.11738)\]
 \[[Website](https://prunetruong.com/sparf.github.io/)\]
-\[[Youtube teaser](https://www.youtube.com/watch?v=FyLgaM_0HlA)\]
+\[[Youtube teaser](https://www.youtube.com/watch?v=ARMKrcJlULE)\]
 
 
 Our approach SPARF produces realistic novel-view rendering given as few as 2 or 3 input images, with noisy camera poses. We add two novel constraints into the pose-NeRF optimization: the multi-view correspondence loss and the depth-consistency loss. 
@@ -82,7 +82,7 @@ We provide an example admin/local_example.py where all datasets are stored in da
 python -c "from source.admin.environment import create_default_local_file; create_default_local_file()"
 ```
 
-* Download the pre-trained model of [PDC-Net](https://arxiv.org/abs/2101.01710) [here](https://drive.google.com/file/d/1nOpC0MFWNV8N6ue0csed4I2K_ffX64BL/view). You will need to change the path to the pre-trained model in train_settings/default_config.py `cfg.flow_ckpt_path` (L.190). 
+* Download the pre-trained model of [PDC-Net](https://arxiv.org/abs/2101.01710) [here](https://drive.google.com/file/d/1nOpC0MFWNV8N6ue0csed4I2K_ffX64BL/view). You will need to change the path to the pre-trained model in [train_settings/default_config.py](https://github.com/google-research/sparf/blob/main/train_settings/default_config.py#L190) `cfg.flow_ckpt_path` (L.190). 
 
 <details>
   <summary><b>Make sure the correspondence network is installed and running correctly</b></summary>

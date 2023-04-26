@@ -88,7 +88,7 @@ intr = np.array([
 We have implemented different dataloaders:
 
 -   [LLFF](https://github.com/google-research/sparf/blob/main/source/datasets/llff.py)
--   [DTU dataset](https://github.com/google-research/sparf/blob/main/source/datasets/dtu.py)
+-   [DTU](https://github.com/google-research/sparf/blob/main/source/datasets/dtu.py)
 -   [Replica](https://github.com/google-research/sparf/blob/main/source/datasets/rgbd_datasets.py)
 
 
