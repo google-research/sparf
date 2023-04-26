@@ -1,0 +1,6 @@
+[submodule "third_party/DenseMatching"]
+	path = third_party/DenseMatching
+	url = https://github.com/PruneTruong/DenseMatching.git
+[submodule "third_party/Hierarchical-Localization"]
+	path = third_party/Hierarchical-Localization
+	url = https://github.com/cvg/Hierarchical-Localization.git
