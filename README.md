@@ -395,12 +395,13 @@ To make sure the code is running fine, for scene='horns', you should get similar
 | SPARF (Ours)  | 19.39 | 0.64 | 0.29 | 
 
 </details>
+
 --------------------------------------
 
 
 ## II. Using a pre-trained model
 
-You can find our pre-trained models (from running this repo), following the same structures as our train_settings files, [here](https://drive.google.com/drive/folders/1b3atnbgyR8macgZCvL4OneoLgrOMt6Mz?usp=share_link)
+You can find our pre-trained models (from running this repo), following the same structures as our train_settings files, [here](https://drive.google.com/drive/folders/1b3atnbgyR8macgZCvL4OneoLgrOMt6Mz?usp=share_link).
 After downloading the checkpoints, you can evaluate the model and render test images as indicated above.
 
 
