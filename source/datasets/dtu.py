@@ -110,8 +110,12 @@ class DTUDatasetPixelNerf(Dataset):
         self.depth_dir = args.env.dtu_depth
         self.dtu_mask_path = args.env.dtu_mask
         
+        # This is to rescale the poses and the depth maps. 
+        # Here, I hard-coded 1./300. because for all the scenes I considered, the 
+        # scaling factor "norm_scale" (see L.236) was always equal to [300., 300., 300.]
+        # If this is not the case, this needs to be modified to be equal to 1./norm_scale. 
+        # One should also verify that the scaling makes the depth maps consistent with the poses. 
         self.scaling_factor = 1./300.  
-        # used in pixelnerf!! also apply a translation to all poses, to center them
 
         self.near_depth = 1.2
         self.far_depth = 5.2
@@ -235,6 +239,10 @@ class DTUDatasetPixelNerf(Dataset):
                 # here it is 3 values, but equal to each other!
                 assert norm_scale.mean() == 300.
                 # I directly use this scaling factor to scale the depth
+                # it is hardcoded in self.scaling_factor 
+                # If this assertion doesn't hold, them self.scaling_factor should be equal to 1./norm_scale
+                # Importantly, the norm_scale must be equal for all directions, otherwise that wouldn't scale
+                # the depth map properly. 
 
             pose_c2w_[:3, 3:] *= self.scaling_factor
 
@@ -289,7 +297,7 @@ class DTUDatasetPixelNerf(Dataset):
                 * image: the corresponding image, a torch Tensor of shape [3, H, W]. The RGB values are 
                             normalized to [0, 1] (not [0, 255]). 
                 * intr: intrinsics parameters, numpy array of shape [3, 3]
-                * pose:  world-to-camera transformation matrix, numpy array of shaoe [3, 4]
+                * pose:  world-to-camera transformation matrix in OpenCV format, numpy array of shaoe [3, 4]
                 * depth_range: depth_range, numpy array of shape [1, 2]
                 * scene: scene name
 

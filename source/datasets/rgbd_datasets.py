@@ -109,7 +109,7 @@ class BaseRGBDDataset(Dataset):
                 * image: the corresponding image, a torch Tensor of shape [3, H, W]. The RGB values are 
                             normalized to [0, 1] (not [0, 255]). 
                 * intr: intrinsics parameters, numpy array of shape [3, 3]
-                * pose:  world-to-camera transformation matrix, numpy array of shaoe [3, 4]
+                * pose:  world-to-camera transformation matrix in OpenCV format, numpy array of shaoe [3, 4]
                 * depth_range: depth_range, numpy array of shape [1, 2]
                 * scene: self.scenes[render_scene_id]
 

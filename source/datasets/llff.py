@@ -32,7 +32,11 @@ import source.utils.camera as camera
 
 
 class LLFFPerScene(base.Dataset):
-    """LLFF dataloader, modified from BARF. """
+    """LLFF dataloader, modified from BARF. 
+    Note that we flip all poses, such that they face towards the +z direction. 
+    In the original dataset, they face in -z direction. This is so they face in the same
+    direction than the initial identity poses. 
+    """
     def __init__(self, args: Dict[str, Any], split: str="train", **kwargs):
         self.raw_H,self.raw_W = 3024, 4032  # size of the original images
         super().__init__(args,split)
@@ -54,9 +58,9 @@ class LLFFPerScene(base.Dataset):
         image_fnames = [f for f in sorted(os.listdir(self.path_image)) if \
             f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]  # N
 
-        poses_c2w_raw, bounds = self.parse_cameras_and_bounds(factor=factor)  
+        poses_c2w_opengl, bounds = self.parse_cameras_and_bounds(factor=factor)  
         # (N, 3, 4) and (N, 2)
-        self.list = list(zip(image_fnames,poses_c2w_raw,bounds)) 
+        self.list = list(zip(image_fnames,poses_c2w_opengl,bounds)) 
         
         # here the bounds are actually different for each image!!
         self.bounds = bounds
@@ -88,12 +92,21 @@ class LLFFPerScene(base.Dataset):
             self.cameras = self.preload_threading(self.get_camera,data_str="cameras")
 
     def parse_cameras_and_bounds(self, factor=1):
+        """The outputted cameras are in C2W in OpenGL format, i.e. 
+        the coordinate system of this function output is [right, up, backwards]. 
+        This function was taken from the data loading function from the original NeRF 
+        (https://github.com/bmild/nerf/blob/master/load_llff.py#L243).
+        """
         fname = "{}/poses_bounds.npy".format(self.path)
         data = torch.tensor(np.load(fname),dtype=torch.float32)
+
         # parse cameras (intrinsics and poses)
         cam_data = data[:,:-2].view([-1,3,5]) # [N,3,5]
-        poses_raw = cam_data[...,:4] # [N,3,4]
-        poses_raw[...,0],poses_raw[...,1] = poses_raw[...,1],-poses_raw[...,0]
+        poses_c2w_llff = cam_data[...,:4] # [N,3,4]
+        
+        # Correct rotation matrix ordering to get OpenGL format
+        poses_c2w_opengl = poses_c2w_llff.clone()
+        poses_c2w_opengl[...,0],poses_c2w_opengl[...,1] = poses_c2w_llff[...,1],-poses_c2w_llff[...,0]
 
         raw_H,raw_W,self.focal = cam_data[0,:,-1]
         
@@ -107,12 +120,14 @@ class LLFFPerScene(base.Dataset):
         # parse depth bounds
         bounds = data[:,-2:] # [N,2]
         scale = 1./(bounds.min()*0.75) # not sure how this was determined
-        poses_raw[...,3] *= scale
-        bounds *= scale
-        # roughly center camera poses
 
-        poses_raw = self.center_camera_poses(poses_raw)  
-        return poses_raw, bounds
+        # rescale the poses
+        poses_c2w_opengl[...,3] *= scale
+        bounds *= scale
+    
+        # roughly center camera poses
+        poses_c2w_opengl = self.center_camera_poses(poses_c2w_opengl)  
+        return poses_c2w_opengl, bounds
 
     def center_camera_poses(self, poses: torch.Tensor):
         # compute average pose
@@ -142,7 +157,7 @@ class LLFFPerScene(base.Dataset):
                 * image: the corresponding image, a torch Tensor of shape [3, H, W]. The RGB values are 
                             normalized to [0, 1] (not [0, 255]). 
                 * intr: intrinsics parameters, numpy array of shape [3, 3]
-                * pose:  world-to-camera transformation matrix, numpy array of shaoe [3, 4]
+                * pose:  world-to-camera transformation matrix in OpenCV format, numpy array of shaoe [3, 4]
                 * depth_range: depth_range, numpy array of shape [1, 2]
                 * scene: self.scenes[render_scene_id]
 
@@ -175,14 +190,23 @@ class LLFFPerScene(base.Dataset):
         intr = torch.tensor([[self.focal,0,self.raw_W/2],
                              [0,self.focal,self.raw_H/2],
                              [0,0,1]]).float()
-        pose_raw = self.list[idx][1]
-        pose_w2c = self.parse_raw_camera(pose_raw)
-        return intr, pose_w2c
+        pose_c2w_opengl = self.list[idx][1]
+        pose_w2c_opencv = self.parse_raw_camera(pose_c2w_opengl)
+        return intr, pose_w2c_opencv
 
-    def parse_raw_camera(self, pose_c2w_raw: torch.Tensor):
+    def parse_raw_camera(self, pose_c2w_opengl: torch.Tensor):
         pose_flip = camera.pose(R=torch.diag(torch.tensor([1,-1,-1])))
-        pose_c2w = camera.pose.compose([pose_flip,pose_c2w_raw[:3]])
-        pose_w2c = camera.pose.invert(pose_c2w)
-        pose_w2c = camera.pose.compose([pose_flip,pose_w2c])
-        return pose_w2c
+
+        # Transforms OpenGL to OpenCV
+        pose_c2w_opencv = camera.pose.compose([pose_flip,pose_c2w_opengl[:3]])
+
+        # Gets W2C from C2W matrix
+        pose_w2c_opencv = camera.pose.invert(pose_c2w_opencv)
+
+        # Right now, the poses are facing in direction -Z. We want them to face direction +Z. 
+        # That amounts to a rotation of 180 degrees around the x axis, ie the same pose_flip. 
+        # Therefore, when initializing with identity matrix, the identity and ground-truth 
+        # poses will face in the same direction. 
+        pose_w2c_opencv_facing_plus_z = camera.pose.compose([pose_flip,pose_w2c_opencv])
+        return pose_w2c_opencv_facing_plus_z
 
