@@ -8,9 +8,13 @@ a dictionary for each image index containing the following elements:
 * `image`: the corresponding image, a torch Tensor of shape [3, H, W]. The RGB values are 
               normalized to [0, 1] (not [0, 255]). 
 * `intr`: intrinsics parameters, numpy array of shape [3, 3]
-* `pose`:  **world-to-camera** transformation matrix, numpy array of shaoe [3, 4]
+* `pose`:  **world-to-camera** transformation matrix, numpy array of shape [3, 4]
 * `depth_range`: depth_range, numpy array of shape [1, 2]
 * `scene`: string, scene name
+
+Optionally, if using provided initial poses:
+* `w2c_pose_initial`: **world-to-camera** transformation matrix, numpy array of shape [3, 4]. 
+Will be used as the initial poses if settings are set as settings_model.camera.initial_pose = 'given'. 
 
 Optionally, when the depth or a foreground mask are available:
 * `depth_gt`: ground-truth depth map, numpy array of shape [H, W]

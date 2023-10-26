@@ -419,14 +419,15 @@ If you don't want to run the code, you can also directly download the renderings
 
 Test your own sequence!
 If you want to try SPARF on your own sequence (with images and initial poses), we 
-provide a template data file in [source/datasets/my_own_data.py](), which is an example 
+provide a template data file in 
+[source/datasets/my_own_data.py](https://github.com/google-research/sparf/tree/sparf_for_own_data/source/datasets/my_own_data.py), which is an example 
 to read from a sequence and cameras poses given as metadatas. 
 You should modify load_scene_data() to read each image samples, camera extrinsics and intrinsics.
 The output of __get__item should not be modified. 
 You may ignore the camera poses as they are assumed unknown in this case, which we simply set to the same poses than the initial ones.
 
 We also provide the train_settings using your own data and given initial poses in 
-[train_settings/joint_pose_nerf_training/my_own_data/sparf_for_non_forward_facing.py](). 
+[train_settings/joint_pose_nerf_training/my_own_data/sparf_for_non_forward_facing.py](https://github.com/google-research/sparf/tree/sparf_for_own_data/train_settings/joint_pose_nerf_training/my_own_data/sparf_for_non_forward_facing.py). 
 Importantly, settings_model.camera.initial_pose should be set to 'given', such that the initial poses
 used are the given ones. 
 
