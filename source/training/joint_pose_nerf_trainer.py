@@ -78,7 +78,7 @@ class CommonPoseEvaluation:
                 pose_noise = camera.lie.se3_to_SE3(se3_noise)
                 initial_poses_w2c = camera.pose.compose([pose_noise, pose_GT_w2c])
             elif opt.camera.initial_pose == 'given':
-                initial_poses_w2c = self.train_data.all.pose_initial.to(self.device)
+                initial_poses_w2c = self.train_data.all.w2c_pose_initial.to(self.device)
             elif 'sfm' in opt.camera.initial_pose:
                 # initial poses obtained by COLMAP with different matchers
                 # we all save it into a common directory, to make sure that if it was done before, it is not done again

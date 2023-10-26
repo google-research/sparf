@@ -18,10 +18,12 @@
 from .llff import LLFFPerScene
 from .dtu import *
 from .rgbd_datasets import ReplicaPerScene
+from .my_own_data import MyData
 
 
 dataset_dict = { 
     'llff': LLFFPerScene, 
     'dtu' : DTUDatasetPixelNerf,
-    'replica': ReplicaPerScene, 
+    'replica': ReplicaPerScene,
+    'mydata': MyData,
 }

@@ -14,43 +14,45 @@
  limitations under the License.
  """
  
-import time
-from pathlib import Path
-from easydict import EasyDict as edict
 
-from source.utils.config_utils import  override_options
+
+from easydict import EasyDict as edict
+import os
+
+from source.utils.config_utils import override_options
 from train_settings.default_config import get_joint_pose_nerf_default_config_360_data
 
 
 def get_config():
     default_config = get_joint_pose_nerf_default_config_360_data()
-    
+
     settings_model = edict()
 
-    # camera options    
+    # camera options
     settings_model.camera = edict()
-    settings_model.camera.initial_pose = 'noisy_gt'                                           
-    settings_model.camera.noise = 0.15
+    settings_model.camera.initial_pose = 'given'
+    # as initial poses, it will load whichever pose is in the field 'w2c_pose_initial'
 
     # scheduling for 2 stage training
     settings_model.first_joint_pose_nerf_then_nerf = True
     settings_model.ratio_end_joint_nerf_pose_refinement = 0.3
-    settings_model.barf_c2f = [0.4,0.7]   # coarse-to-fine pe
+    settings_model.barf_c2f = [0.4, 0.7]  # coarse-to-fine pe
+    # you might want to play around with this scheduling.
 
     # dataset
-    settings_model.dataset = 'dtu'
+    settings_model.dataset = 'mydata'  # that corresponds to the custom data, defined in datasets/__init__.py
+    settings_model.resize_factor = 0.5  # might potentially want to resize the images and so on
     settings_model.resize = None
-    
-    settings_model.nerf = edict()                                                       # NeRF-specific options
-    settings_model.nerf.depth = edict()                                                  # depth-related options
-    settings_model.nerf.depth.param = 'metric'                                       # depth parametrization (for sampling along the ray)
-    settings_model.nerf.fine_sampling = True                               # hierarchical sampling with another NeRF
-    settings_model.nerf.ratio_start_fine_sampling_at_x = settings_model.ratio_end_joint_nerf_pose_refinement
 
+    settings_model.nerf = edict()  # NeRF-specific options
+    settings_model.nerf.depth = edict()  # depth-related options
+    settings_model.nerf.depth.param = 'metric'  # depth parametrization (for sampling along the ray)
+    settings_model.nerf.fine_sampling = True  # hierarchical sampling with another NeRF
+    settings_model.nerf.ratio_start_fine_sampling_at_x = settings_model.ratio_end_joint_nerf_pose_refinement
 
     # correspondence stuff
     settings_model.use_flow = True
-    settings_model.flow_backbone='PDCNet'  #choose from PDCNet, GLUNet, PWCNet
+    settings_model.flow_backbone = 'PDCNet'  # choose from PDCNet, GLUNet, PWCNet
 
     # loss type
     settings_model.loss_type = 'photometric_and_corres_and_depth_cons'
@@ -61,9 +63,9 @@ def get_config():
     settings_model.ratio_start_decrease_corres_weight = settings_model.ratio_end_joint_nerf_pose_refinement
     settings_model.corres_weight_reduct_at_x_iter = 10000
 
-    settings_model.loss_weight = edict()                                               
-    settings_model.loss_weight.render = 0.    
-    settings_model.loss_weight.corres = -3. # for 10^
+    settings_model.loss_weight = edict()
+    settings_model.loss_weight.render = 0.
+    settings_model.loss_weight.corres = -3.  # for 10^
     settings_model.loss_weight.depth_cons = -3
     return override_options(default_config, settings_model)
 

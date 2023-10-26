@@ -412,8 +412,36 @@ After downloading the checkpoints, you can evaluate the model and render test im
 
 If you don't want to run the code, you can also directly download the renderings of our models for the test set poses using the following link: https://drive.google.com/drive/folders/1lHryExsutZsbcKJlzO7QKM34YlUwKSSx?usp=share_link. The structure follows that of the train_settings files. They correspond to the renderings used in the paper, so they will be a bit different compared to the ones obtained when running the provided pre-trained models (for which the training was done with this codebase). 
 
+
 --------------------------------------
-## IV. Codebase structure
+
+## IV. Using your own data
+
+Test your own sequence!
+If you want to try SPARF on your own sequence (with images and initial poses), we 
+provide a template data file in [source/datasets/my_own_data.py](), which is an example 
+to read from a sequence and cameras poses given as metadatas. 
+You should modify load_scene_data() to read each image samples, camera extrinsics and intrinsics.
+The output of __get__item should not be modified. 
+You may ignore the camera poses as they are assumed unknown in this case, which we simply set to the same poses than the initial ones.
+
+We also provide the train_settings using your own data and given initial poses in 
+[train_settings/joint_pose_nerf_training/my_own_data/sparf_for_non_forward_facing.py](). 
+Importantly, settings_model.camera.initial_pose should be set to 'given', such that the initial poses
+used are the given ones. 
+
+Note that because we use dummy ground truth poses, the pose 
+registration will be wrong and therefore all metrics will also be wrong, they 
+should be ignored. One can judge the quality of the NeRF qualitatively by rendering 
+some frames. 
+
+
+**TO DO**: I will add an interface to compute COLMAP poses directly from a sequence of images, and use those
+as initial poses. Meanwhile, a good repo to compute initial COLMAP poses (with improved matches) 
+is [HLOC](https://github.com/cvg/Hierarchical-Localization). 
+
+--------------------------------------
+## V. Codebase structure
 
 For details on the dataloader and how to use your own, refer to [this doc](https://github.com/google-research/sparf/blob/main/docs/code_documentation.md). 
 
