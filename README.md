@@ -436,6 +436,16 @@ registration will be wrong and therefore all metrics will also be wrong, they
 should be ignored. One can judge the quality of the NeRF qualitatively by rendering 
 some frames. 
 
+One can run with
+```bash
+conda activate sparf-env
+# Selecting <train_module> <train_name> <nbr_input_views> <scene_name>
+# python run_trainval.py <train_module> <train_name> --train_sub <nbr_input_views> --scene <scene_name>
+
+python run_trainval.py joint_pose_nerf_training/my_own_data sparf_for_non_forward_facing --train_sub <nbr_input_views> --scene <scene_name>
+
+```
+
 
 **TO DO**: I will add an interface to compute COLMAP poses directly from a sequence of images, and use those
 as initial poses. Meanwhile, a good repo to compute initial COLMAP poses (with improved matches) 
