@@ -130,9 +130,9 @@ class Graph(torch.nn.Module):
             ret.ray_idx = ray_idx
         else:
             # render full image (process in slices)
-            ret = self.render_by_slices(opt,pose,intr=data_dict.intr,mode=mode, 
+            ret = self.render_by_slices(opt,pose,intr=data_dict.intr,mode=mode,
                                         H=H, W=W, depth_range=depth_range, iter=iter) if opt.nerf.rand_rays else \
-                  self.render(opt,pose,intr=data_dict.intr,mode=mode, H=H, W=W, 
+                  self.render(opt,pose,intr=data_dict.intr,mode=mode, H=H, W=W,
                               depth_range=depth_range, iter=iter) # [B,HW,3],[B,HW,1]
 
         ret.idx_img_rendered = torch.arange(start=0, end=batch_size).to(self.device)  
@@ -142,7 +142,7 @@ class Graph(torch.nn.Module):
     def render_image_at_specific_pose_and_rays(self, opt: Dict[str, Any], data_dict: Dict[str, Any], pose: torch.Tensor, 
                                                intr: torch.Tensor, H: int, W: int, iter: int, 
                                                pixels: torch.Tensor = None, ray_idx: torch.Tensor = None, 
-                                               mode: str = 'train', per_slice: str = False) -> Dict[str, Any]:
+                                               mode: str = 'train') -> Dict[str, Any]:
         """Rendering of a specified set of pixels (or all) at a predefined pose. 
 
         Args:
@@ -163,7 +163,6 @@ class Graph(torch.nn.Module):
             pixels, ray_idx: if any of the two is specified, will render only at these locations. 
                              (L, N, 2) or (N, 2)  / (L, N) or (N)
             mode (str, optional): Defaults to None.
-            per_slice: render per slice? in case the number of pixels is too large to be processed all at once. 
         """
         if len(pose.shape) == 2:
             pose = pose.unsqueeze(0)
@@ -183,10 +182,8 @@ class Graph(torch.nn.Module):
                   self.render(opt,pose,intr=intr,mode=mode, H=H, W=W, \
                       depth_range=depth_range, iter=iter) # [B,HW,3],[B,HW,1]
         else:
-            # render only the ray_idx or pixels specified. If too large, use per_slice here. 
-            ret = self.render_by_slices_w_custom_rays(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
-                                                      H=H, W=W, depth_range=depth_range, iter=iter) if per_slice else \
-                  self.render(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
+            # render only the ray_idx or pixels specified.
+            ret = self.render(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode,
                               H=H, W=W, depth_range=depth_range, iter=iter) # [B,N,3],[B,N,1]   
             ret.ray_idx = ray_idx  
         # ret.update(rgb_fine=rgb_fine,depth_fine=depth_fine,opacity_fine=opacity_fine) # [1, N_rays, K] or [N, N_rays, K]
@@ -194,7 +191,7 @@ class Graph(torch.nn.Module):
 
     def render_image_at_specific_rays(self, opt: Dict[str, Any], data_dict: Dict[str, Any], iter: int, 
                                       img_idx: Union[List[int], int] = None, pixels: torch.Tensor = None, 
-                                      ray_idx: torch.Tensor = None, mode: str = 'train', per_slice: str = False) -> Dict[str, Any]:
+                                      ray_idx: torch.Tensor = None, mode: str = 'train') -> Dict[str, Any]:
         """Rendering of a specified set of pixels for all images of data_dict. 
 
         Args:
@@ -215,7 +212,6 @@ class Graph(torch.nn.Module):
             img_idx (list, optional): In case we want to render from only a subset of the
                                       images contained in data_dict.image. Defaults to None.
             mode (str, optional): Defaults to None.
-            per_slice: render per slice? in case the number of pixels is too large to be processed all at once. 
         """
         pose = self.get_w2c_pose(opt,data_dict,mode=mode)
         intr = data_dict.intr
@@ -243,9 +239,7 @@ class Graph(torch.nn.Module):
             ret = self.render_by_slices(opt,pose,intr=intr,mode=mode, H=H, W=W, depth_range=depth_range, iter=iter) if opt.nerf.rand_rays else \
                   self.render(opt,pose,intr=intr,mode=mode, H=H, W=W, depth_range=depth_range, iter=iter) # [B,HW,3],[B,HW,1]
         else:
-            ret = self.render_by_slices_w_custom_rays(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
-                                                      H=H, W=W, depth_range=depth_range, iter=iter) if per_slice else \
-                  self.render(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
+            ret = self.render(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode,
                               H=H, W=W, depth_range=depth_range, iter=iter) # [B,N,3],[B,N,1]  
             ret.ray_idx = ray_idx
         # ret.update(rgb_fine=rgb_fine,depth_fine=depth_fine,opacity_fine=opacity_fine) # [1, N_rays, K] or [N, N_rays, K]
@@ -466,7 +460,7 @@ class Graph(torch.nn.Module):
     def render_up_to_maxdepth_at_specific_pose_and_rays\
         (self, opt: Dict[str, Any], data_dict: Dict[str, Any], pose: torch.Tensor, intr: torch.Tensor, 
          H: int, W: int, depth_max: torch.Tensor, iter: int, pixels: torch.Tensor = None, 
-         ray_idx: torch.Tensor = None, mode: str = 'train', per_slice: str = False) -> Dict[str, Any]:
+         ray_idx: torch.Tensor = None, mode: str = 'train') -> Dict[str, Any]:
         """Rendering of a specified set of pixels at a predefined pose, up to a specific depth. 
 
         Args:
@@ -488,7 +482,6 @@ class Graph(torch.nn.Module):
             pixels, ray_idx: if any of the two is specified, will render only at these locations. 
                              (L, N, 2) or (N, 2)  / (L, N) or (N)
             mode (str, optional): Defaults to None.
-            per_slice: render per slice? in case the number of pixels is too large to be processed all at once. 
         """
         if len(pose.shape) == 2:
             pose = pose.unsqueeze(0)
@@ -502,10 +495,7 @@ class Graph(torch.nn.Module):
             depth_range = data_dict.depth_range[0]
 
         # max_depth should be [B, N]
-        ret = self.render_by_slices_w_custom_rays(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
-                                                  H=H, W=W, depth_range=depth_range, depth_max=depth_max, iter=iter) \
-                if per_slice else \
-                self.render_to_max(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode, 
+        ret = self.render_to_max(opt,pose,intr=intr,pixels=pixels,ray_idx=ray_idx,mode=mode,
                                  H=H, W=W, depth_min=depth_range[0], depth_max=depth_max, iter=iter) # [B,N,3],[B,N,1]   
         ret.ray_idx = ray_idx  
         # ret.update(rgb_fine=rgb_fine,depth_fine=depth_fine,opacity_fine=opacity_fine) # [1, N_rays, K] or [N, N_rays, K]
