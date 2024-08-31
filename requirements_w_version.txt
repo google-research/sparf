@@ -4,7 +4,7 @@ h5py==3.6.0
 imageio==2.19.5
 imageio-ffmpeg==0.4.7
 open3d==0.15.2
-opencv-python==4.6.0.66
+opencv-python==4.8.1.78
 numpy==1.21.5
 ConfigArgParse==1.5.3
 PyYAML
