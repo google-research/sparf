@@ -26,7 +26,7 @@ Pillow @ file:///home/conda/feedstock_root/build_artifacts/pillow_1645323161513/
 tensorboard==2.10.1
 tensorboardX==2.5.1
 termcolor==1.1.0
-torch==1.10.2+cu113
+torch==2.4.0
 torch-tb-profiler==0.4.0
 torchaudio==0.10.2+cu113
 torchfile==0.1.0
