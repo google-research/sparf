@@ -37,7 +37,7 @@ def prepare_data(root_path, untar_path, mode='euler'):
                 cmd = 'tar -xvf {} -C {}'.format(tar_file_path, untar_path)
             elif tar_file_path.endswith('.zip'):
                 # os.system('mkdir -p {}'.format(untar_path))
-                # os.system('gsutil -m cp {} {}'.format(tar_file_path, untar_path))
+                # os.system('gcloud storage cp {} {}'.format(tar_file_path, untar_path))
                 # os.system('unzip -q {} -d {}'.format(out_path, untar_path))
                 # cmd = ' '
                 cmd = 'unzip {} -d {}'.format(tar_file_path, untar_path)
