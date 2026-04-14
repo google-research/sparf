@@ -17,7 +17,7 @@ scikit-image==0.19.3
 tqdm
 lpips==0.1.4
 matplotlib
-gdown==4.5.1
+gdown==5.2.2
 timm==0.6.5
 kornia==0.6.8
 scikit-learn @ file:///home/conda/feedstock_root/build_artifacts/scikit-learn_1640464152916/work
