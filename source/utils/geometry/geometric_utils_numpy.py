@@ -120,10 +120,10 @@ def backproject_to_3d(kpi: np.ndarray, di: np.ndarray,
         kpi_3d_j: 3D points in coordinate system j, BxNx3
     """
 
-    kpi_3d_i = to_homogeneous(kpi) @ np.linalg.inv(Ki).T
+    kpi_3d_i = to_homogeneous(kpi) @ np.swapaxes(np.linalg.inv(Ki), -1, -2)
     kpi_3d_i = kpi_3d_i * di[..., None]  # non-homogeneous coordinates
     kpi_3d_j = from_homogeneous(
-        to_homogeneous(kpi_3d_i) @ T_itoj.T)
+        to_homogeneous(kpi_3d_i) @ np.swapaxes(T_itoj, -1, -2))
     return kpi_3d_j  # Nx3
 
 
@@ -138,8 +138,9 @@ def project(kpi_3d: np.ndarray, T_itoj: np.ndarray, Kj: np.ndarray) -> np.ndarra
     Returns:
         pixels projections in image j, BxNx2
     """
-    kpi_3d_in_j = from_homogeneous(to_homogeneous(kpi_3d) @ T_itoj.T)
-    kpi_2d_in_j = kpi_3d_in_j @ Kj.T
+    kpi_3d_in_j = from_homogeneous(
+        to_homogeneous(kpi_3d) @ np.swapaxes(T_itoj, -1, -2))
+    kpi_2d_in_j = kpi_3d_in_j @ np.swapaxes(Kj, -1, -2)
     return from_homogeneous(kpi_2d_in_j)
 
 
